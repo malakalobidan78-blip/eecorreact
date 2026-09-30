@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoReact | Startup Investment Portfolio & Live Executive Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                            accent: '#f59e0b', // Gold / Amber accent
+                            darkBg: '#0b131f',
+                            cardBg: '#132235',
+                            border: '#1e3a5f'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            background-color: #080d1a;
+            color: #f3f4f6;
+        }
+        .glass-panel {
+            background: rgba(19, 34, 53, 0.8);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(30, 58, 95, 0.6);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.25s ease-in-out;
+        }
+        .glass-card:hover {
+            border-color: rgba(34, 197, 94, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.15);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0b131f;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1e3a5f;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #22c55e;
+        }
+        .pulse-emerald {
+            animation: pulse-emerald-glow 2s infinite;
+        }
+        @keyframes pulse-emerald-glow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.03); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col custom-scrollbar selection:bg-brand-500 selection:text-black">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-brand-border px-4 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-atom text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl font-bold tracking-tight text-white">EcoReact</span>
+                        <span class="bg-amber-500/10 text-amber-400 text-xs px-2 py-0.5 rounded-full border border-amber-500/30 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-certificate text-[10px]"></i> SA 10202510014
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 hidden sm:block" data-i18n="tagline">تحويل النفايات البلاستيكية إلى تقنية نانو للتعقيم الذاتي</p>
+                </div>
+            </div>
+
+            <!-- Program & Partners Badges -->
+            <div class="hidden md:flex items-center space-x-4 space-x-reverse text-xs text-slate-300">
+                <div class="flex items-center space-x-1.5 space-x-reverse bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <span>Hack4Earth Program</span>
+                </div>
+                <div class="flex items-center space-x-1.5 space-x-reverse bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+                    <i class="fa-solid fa-graduation-cap text-emerald-400"></i>
+                    <span>UBT Techno Valley</span>
+                </div>
+                <div class="flex items-center space-x-1.5 space-x-reverse bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+                    <i class="fa-solid fa-handshake text-blue-400"></i>
+                    <span>INJAZ Saudi Arabia</span>
+                </div>
+            </div>
+
+            <!-- Controls: Language Toggle -->
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <button id="langToggleBtn" onclick="toggleLanguage()" class="px-3.5 py-1.5 rounded-lg bg-brand-600/20 hover:bg-brand-600/30 text-brand-400 border border-brand-500/40 text-sm font-semibold transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-globe"></i>
+                    <span id="langText">English</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto w-full px-4 lg:px-8 py-6 flex-1 flex flex-col lg:flex-row gap-6">
+        
+        <!-- Sidebar Menu -->
+        <aside class="w-full lg:w-64 flex-shrink-0">
+            <nav class="glass-panel rounded-2xl p-3 flex lg:flex-col gap-1 overflow-x-auto custom-scrollbar sticky top-20">
+                <button onclick="switchTab('dashboardTab')" id="btn-dashboardTab" class="nav-btn active w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl text-sm font-semibold transition-all text-left">
+                    <i class="fa-solid fa-gauge-high text-brand-400 w-5"></i>
+                    <span data-i18n="navDashboard">لوحة التحكم والمؤشرات</span>
+                </button>
+                <button onclick="switchTab('overviewTab')" id="btn-overviewTab" class="nav-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white transition-all text-left">
+                    <i class="fa-solid fa-chart-pie text-emerald-400 w-5"></i>
+                    <span data-i18n="navOverview">نظرة عامة والفرصة</span>
+                </button>
+                <button onclick="switchTab('bmcTab')" id="btn-bmcTab" class="nav-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white transition-all text-left">
+                    <i class="fa-solid fa-cubes text-amber-400 w-5"></i>
+                    <span data-i18n="navBMC">نموذج العمل وSWOT</span>
+                </button>
+                <button onclick="switchTab('techTab')" id="btn-techTab" class="nav-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white transition-all text-left">
+                    <i class="fa-solid fa-vial-virus text-teal-400 w-5"></i>
+                    <span data-i18n="navTech">التقنية والمنتج (TRL/MRL)</span>
+                </button>
+                <button onclick="switchTab('financialTab')" id="btn-financialTab" class="nav-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white transition-all text-left">
+                    <i class="fa-solid fa-calculator text-blue-400 w-5"></i>
+                    <span data-i18n="navFinance">الحاسبة التفاعلية والمالية</span>
+                </button>
+                <button onclick="switchTab('impactTab')" id="btn-impactTab" class="nav-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white transition-all text-left">
+                    <i class="fa-solid fa-leaf text-green-400 w-5"></i>
+                    <span data-i18n="navImpact">الأثر والاستدامة ESG</span>
+                </button>
+                <button onclick="switchTab('teamTab')" id="btn-teamTab" class="nav-btn w-full flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white transition-all text-left">
+                    <i class="fa-solid fa-users text-purple-400 w-5"></i>
+                    <span data-i18n="navTeam">الفريق والعرض الاستثماري</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content View Container -->
+        <main class="flex-1 space-y-6">
+
+            <div id="dashboardTab" class="tab-content block space-y-6">
+                <!-- Dashboard Header -->
+                <div class="glass-panel rounded-3xl p-6 border border-brand-500/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                            <span class="text-xs font-semibold text-emerald-400" data-i18n="dashLiveStatus">نظام المفاعل والقياسات الحية: نشط</span>
+                        </div>
+                        <h2 class="text-2xl lg:text-3xl font-extrabold text-white" data-i18n="dashTitle">لوحة التحكم والمؤشرات التنفيذية</h2>
+                        <p class="text-xs text-slate-400" data-i18n="dashSub">متابعة الأداء الميداني، كفاءة مفاعل CQD النانوي، والتأثير البيئي المباشر</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <select id="seasonFilter" onchange="filterDashboardData()" class="bg-slate-900 text-xs text-slate-200 border border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500">
+                            <option value="phase1" selected data-i18n="filterP1">المرحلة 1: موسم الحج (150k م²)</option>
+                            <option value="phase2" data-i18n="filterP2">المرحلة 2: التوسع بالمشاعر (300k م²)</option>
+                            <option value="phase3" data-i18n="filterP3">المرحلة 3: المستشفيات والنقل (1M م²)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Top Metric Cards Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-panel p-5 rounded-2xl border-b-2 border-b-emerald-500 space-y-2">
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <span data-i18n="dashMetric1Title">المساحة المغطاة الحالية</span>
+                            <i class="fa-solid fa-layer-group text-emerald-400"></i>
+                        </div>
+                        <div class="text-2xl font-black text-white font-mono" id="dashMetricArea">150,000 <span class="text-xs font-normal text-slate-400">م²</span></div>
+                        <div class="text-[11px] text-emerald-400 flex items-center gap-1">
+                            <i class="fa-solid fa-check"></i> <span data-i18n="dashMetric1Sub">خيام ومرافق منى</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-b-2 border-b-amber-500 space-y-2">
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <span data-i18n="dashMetric2Title">الإيرادات المحققة / المقدرة</span>
+                            <i class="fa-solid fa-coins text-amber-400"></i>
+                        </div>
+                        <div class="text-2xl font-black text-white font-mono" id="dashMetricRev">6,000,000 <span class="text-xs font-normal text-slate-400">SAR</span></div>
+                        <div class="text-[11px] text-amber-400 flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-trend-up"></i> <span data-i18n="dashMetric2Sub">هامش ربح صَافي 50%</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-b-2 border-b-blue-500 space-y-2">
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <span data-i18n="dashMetric3Title">البلاستيك المحول (PET/PP)</span>
+                            <i class="fa-solid fa-recycle text-blue-400"></i>
+                        </div>
+                        <div class="text-2xl font-black text-white font-mono" id="dashMetricWaste">150 <span class="text-xs font-normal text-slate-400">طن</span></div>
+                        <div class="text-[11px] text-blue-400 flex items-center gap-1">
+                            <i class="fa-solid fa-leaf"></i> <span data-i18n="dashMetric3Sub">تم تحويله لنقاط كوانتية</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl border-b-2 border-b-purple-500 space-y-2">
+                        <div class="flex justify-between items-center text-xs text-slate-400">
+                            <span data-i18n="dashMetric4Title">كفاءة التعقيم الميكروبي</span>
+                            <i class="fa-solid fa-shield-virus text-purple-400"></i>
+                        </div>
+                        <div class="text-2xl font-black text-white font-mono" id="dashMetricEfficacy">99.8%</div>
+                        <div class="text-[11px] text-purple-400 flex items-center gap-1">
+                            <i class="fa-solid fa-certificate"></i> <span data-i18n="dashMetric4Sub">مبني على تجارب معملية</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reactor Status & Live Process Monitor -->
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <!-- Live Nano Reactor Status Card -->
+                    <div class="glass-panel p-6 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="font-bold text-white text-base flex items-center gap-2">
+                                <i class="fa-solid fa-flask-vial text-teal-400"></i>
+                                <span data-i18n="reactorTitle">حالة مفاعل النانو (CQD)</span>
+                            </h3>
+                            <span class="bg-teal-500/10 text-teal-400 text-xs px-2.5 py-0.5 rounded-full border border-teal-500/30" data-i18n="batchStatus">دفعة #842 - جاهزة</span>
+                        </div>
+
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400" data-i18n="reactorParam1">درجة حرارة التفاعل:</span>
+                                <span class="font-mono text-emerald-400 font-bold">180°C (مثالية)</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-emerald-400 h-1.5 rounded-full" style="width: 75%"></div>
+                            </div>
+
+                            <div class="flex justify-between items-center pt-1">
+                                <span class="text-slate-400" data-i18n="reactorParam2">نقاء النقاط الكوانتية (Purity):</span>
+                                <span class="font-mono text-blue-400 font-bold">96.4%</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-blue-400 h-1.5 rounded-full" style="width: 96%"></div>
+                            </div>
+
+                            <div class="flex justify-between items-center pt-1">
+                                <span class="text-slate-400" data-i18n="reactorParam3">المجموعات الفعالة النشطة (-OH / -COOH):</span>
+                                <span class="font-mono text-amber-400 font-bold">عالية الروابط</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-amber-400 h-1.5 rounded-full" style="width: 88%"></div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                            <div class="font-bold text-slate-200 flex items-center gap-1.5">
+                                <i class="fa-solid fa-microscope text-brand-400"></i>
+                                <span data-i18n="labNoteTitle">ملاحظة الضبط المعملي (KAU Lab)</span>
+                            </div>
+                            <p data-i18n="labNoteBody">تم تأكيد استقرار التركيبة النانوية مع مقاومة كاملة للأشعة فوق البنفسجية UV لضمان استدامة الطلاء لموسم الحج كاملاً.</p>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid Component -->
+                    <div class="lg:col-span-2 glass-panel p-6 rounded-2xl space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <h3 class="font-bold text-white text-base flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-brand-400"></i>
+                                <span data-i18n="dashChart1Title">مقارنة التكلفة مقابل الإيراد لكل مرحلة (SAR)</span>
+                            </h3>
+                            <span class="text-xs text-slate-400" data-i18n="dashChart1Sub">تحليل الجدوى الاقتصادية</span>
+                        </div>
+                        <div class="h-56 w-full">
+                            <canvas id="dashComparisonChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Environmental & SDG Impact Visualizer -->
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="glass-panel p-4 rounded-2xl flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl flex-shrink-0">
+                            <i class="fa-solid fa-tree"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400" data-i18n="envIcon1">انبعاثات $CO_2$ المحيدة</span>
+                            <div class="text-lg font-bold text-white font-mono" id="dashCo2Val">360 طن متوقع</div>
+                            <p class="text-[11px] text-slate-400" data-i18n="envIcon1Sub">نتيجة منع حرق البلاستيك</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-2xl flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-2xl flex-shrink-0">
+                            <i class="fa-solid fa-droplet-slash"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400" data-i18n="envIcon2">توفير مياه التطهير</span>
+                            <div class="text-lg font-bold text-white font-mono">35% توفير</div>
+                            <p class="text-[11px] text-slate-400" data-i18n="envIcon2Sub">تقليل دورات الغسيل الكيميائي</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-4 rounded-2xl flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl flex-shrink-0">
+                            <i class="fa-solid fa-hospital-user"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400" data-i18n="envIcon3">المستفيدون المقدرون</span>
+                            <div class="text-lg font-bold text-white font-mono">2,000,000+ حاج</div>
+                            <p class="text-[11px] text-slate-400" data-i18n="envIcon3Sub">حماية الأسطح عالية التلامس</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="overviewTab" class="tab-content hidden space-y-6">
+                <!-- Hero Banner -->
+                <div class="relative overflow-hidden glass-panel rounded-3xl p-6 lg:p-8 border border-brand-500/20 bg-gradient-to-r from-slate-900 via-brand-900/30 to-slate-900">
+                    <div class="absolute -top-24 -left-24 w-72 h-72 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="relative z-10 space-y-4">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-full border border-emerald-500/30 font-semibold" data-i18n="stageBadge">مرحلة Prototype / TRL 4</span>
+                            <span class="bg-blue-500/20 text-blue-300 text-xs px-3 py-1 rounded-full border border-blue-500/30 font-semibold" data-i18n="locationBadge">جدة، المملكة العربية السعودية</span>
+                            <span class="bg-amber-500/20 text-amber-300 text-xs px-3 py-1 rounded-full border border-amber-500/30 font-semibold" data-i18n="patentState">براءة اختراع مسجلة SA 10202510014</span>
+                        </div>
+                        <h1 class="text-3xl lg:text-5xl font-extrabold text-white leading-tight" data-i18n="heroTitle">
+                            تحويل النفايات البلاستيكية إلى طلاء نانو ذكي مضاد للميكروبات
+                        </h1>
+                        <p class="text-slate-300 text-sm lg:text-base leading-relaxed max-w-3xl" data-i18n="heroDesc">
+                            تُقدّم EcoReact حلاً ابتكارياً حافلاً ببراءة اختراع سعودية يقوم بتحويل مخلفات البلاستيك (PET/PP) الناتجة عن مواسم التجمعات الكبرى كالحج، إلى نقاط كربون كوانتية (CQD) لإنتاج طلاء نانو ذاتي التعقيم للمرافق والمواصلات والخيام.
+                        </p>
+                        <div class="pt-2 flex flex-wrap gap-4">
+                            <button onclick="switchTab('financialTab')" class="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-600 to-emerald-500 hover:from-brand-500 hover:to-emerald-400 text-slate-950 font-bold transition-all shadow-lg shadow-brand-500/20 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line"></i>
+                                <span data-i18n="heroCTA1">استكشف النمذجة المالية والتكلفة</span>
+                            </button>
+                            <button onclick="switchTab('techTab')" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold border border-slate-700 transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-microscope"></i>
+                                <span data-i18n="heroCTA2">تفاصيل الآلية والتقنية</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Executive Snapshot & Problem / Opportunity Grid -->
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <!-- The Problem -->
+                    <div class="glass-panel p-6 rounded-2xl space-y-4">
+                        <div class="flex items-center gap-3 text-red-400">
+                            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white" data-i18n="probTitle">التحدي والمشكلة الرئيسية</h3>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-300">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-xmark text-red-400 mt-1"></i>
+                                <span data-i18n="prob1">تراكم أطنان النفايات البلاستيكية أحادية الاستخدام أثناء مواسم الحج والتجمعات المليونية.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-xmark text-red-400 mt-1"></i>
+                                <span data-i18n="prob2">مخاطر انتشار العدوى الميكروبية على الأسطح الملموسة بكثرة والتكلفة المرتفعة للرش والتطهير الكيميائي المتكرر.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-xmark text-red-400 mt-1"></i>
+                                <span data-i18n="prob3">ضعف حلول التدوير التقليدية التي تستهلك طاقة عالية ولا تنتج مواد ذات قيمة مضافة عالية.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- The Solution & Value -->
+                    <div class="glass-panel p-6 rounded-2xl space-y-4">
+                        <div class="flex items-center gap-3 text-emerald-400">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                                <i class="fa-solid fa-lightbulb text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white" data-i18n="solTitle">الحل المبتكر والقيمة المضافة</h3>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-300">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-1"></i>
+                                <span data-i18n="sol1">تكنولوجيا نانو ممتدة المفعول تعتمد على مفاعل كيميائي ذكي لتحويل البلاستيك إلى طلاء نانو نشط.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-1"></i>
+                                <span data-i18n="sol2">تكلفة مواد خام خاماتها تقارب الصفر بفضل الاستفادة المباشرة من بلاستيك PET/PP المحلّي.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-1"></i>
+                                <span data-i18n="sol3">توفير حماية كاملة تدوم لموسم كامل بطلاء واحد بدلاً من عمليات التطهير الكيميائي المتكررة.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="bmcTab" class="tab-content hidden space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white" data-i18n="bmcHeader">مخطط نموذج العمل التجاري (BMC)</h2>
+                        <p class="text-xs text-slate-400" data-i18n="bmcSub">مكونات الاستراتيجية الهيكلية لتشغيل الشركة الناشئة</p>
+                    </div>
+                </div>
+
+                <!-- BMC Grid Layout -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+                    <!-- Key Partners -->
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-t-blue-500 space-y-2">
+                        <div class="font-bold text-blue-400 flex items-center gap-1.5"><i class="fa-solid fa-handshake"></i> <span data-i18n="bmcKP">الشركاء الرئيسيون</span></div>
+                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
+                            <li>مركز الابتكار بتمويل جامعة الملك عبد العزيز</li>
+                            <li>وزارة الحج والعمرة وشركة رواف منى</li>
+                            <li>شركات مصنعي الخيام وإدارة المخلفات بمكة</li>
+                        </ul>
+                    </div>
+                    <!-- Key Activities -->
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-t-emerald-500 space-y-2">
+                        <div class="font-bold text-emerald-400 flex items-center gap-1.5"><i class="fa-solid fa-gears"></i> <span data-i18n="bmcKA">الأنشطة الرئيسية</span></div>
+                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
+                            <li>جمع وفرز مخلفات البلاستيك</li>
+                            <li>تشغيل مفاعل النانو لإنتاج CQD</li>
+                            <li>تركيب وتطبيق الطلاء واختبار الجودة</li>
+                        </ul>
+                    </div>
+                    <!-- Value Proposition -->
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-t-amber-500 space-y-2 md:row-span-2 bg-gradient-to-b from-amber-500/5 to-transparent">
+                        <div class="font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-gem"></i> <span data-i18n="bmcVP">القيمة المقترحة</span></div>
+                        <ul class="space-y-2 text-slate-200">
+                            <li class="bg-slate-800/60 p-2 rounded border border-slate-700/50">تحويل البلاستيك الضار إلى طلاء تعقيم ذاتي فائق الأداء.</li>
+                            <li class="bg-slate-800/60 p-2 rounded border border-slate-700/50">تكلفة خامات شبه معدومة تمنح هامش ربح 50%.</li>
+                            <li class="bg-slate-800/60 p-2 rounded border border-slate-700/50">حماية ممتدة لموسم كامل معتمدة ببراءة اختراع.</li>
+                        </ul>
+                    </div>
+                    <!-- Customer Relationships -->
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-t-purple-500 space-y-2">
+                        <div class="font-bold text-purple-400 flex items-center gap-1.5"><i class="fa-solid fa-heart"></i> <span data-i18n="bmcCR">العلاقات مع العملاء</span></div>
+                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
+                            <li>عقود B2B سنوية تجديدية</li>
+                            <li>مستشار مخصص وتقارير جودة بعد كل موسم</li>
+                        </ul>
+                    </div>
+                    <!-- Customer Segments -->
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-t-rose-500 space-y-2">
+                        <div class="font-bold text-rose-400 flex items-center gap-1.5"><i class="fa-solid fa-users"></i> <span data-i18n="bmcCS">شرائح العملاء</span></div>
+                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
+                            <li>وزارة الحج ومقاطعي المشاعر المقدسة</li>
+                            <li>مصنعو الخيام وإدارة المرافق</li>
+                            <li>المستشفيات والنقل العام مستقبلاً (2027+)</li>
+                        </ul>
+                    </div>
+                    <!-- Key Resources -->
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-t-teal-500 space-y-2">
+                        <div class="font-bold text-teal-400 flex items-center gap-1.5"><i class="fa-solid fa-boxes-stacked"></i> <span data-i18n="bmcKR">الموارد الرئيسية</span></div>
+                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
+                            <li>براءة الاختراع SA 10202510014</li>
+                            <li>معامل النانو بجامعة الملك عبد العزيز</li>
+                            <li>الفريق التأسيسي متعدد التخصصات</li>
+                        </ul>
+                    </div>
+                    <!-- Channels -->
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-t-indigo-500 space-y-2">
+                        <div class="font-bold text-indigo-400 flex items-center gap-1.5"><i class="fa-solid fa-truck-fast"></i> <span data-i18n="bmcCH">القنوات</span></div>
+                        <ul class="space-y-1.5 text-slate-300 list-disc list-inside">
+                            <li>العقود الحكومية والشراكات المباشرة</li>
+                            <li>المؤتمرات وهاكاثونات الابتكار</li>
+                        </ul>
+                    </div>
+                    <!-- Cost Structure -->
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-t-red-500 space-y-2 md:col-span-2">
+                        <div class="font-bold text-red-400 flex items-center gap-1.5"><i class="fa-solid fa-wallet"></i> <span data-i18n="bmcCOST">هيكل التكاليف</span></div>
+                        <p class="text-slate-300">تشغيل مفاعل النانو، أجور التشغيل، أبحاث التطوير R&D، والتسويق (تكلفة المتر المربع حوالي 20 ريال).</p>
+                    </div>
+                    <!-- Revenue Streams -->
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-t-green-500 space-y-2 md:col-span-3 bg-green-500/5">
+                        <div class="font-bold text-green-400 flex items-center gap-1.5"><i class="fa-solid fa-sack-dollar"></i> <span data-i18n="bmcREV">مصادر الإيرادات</span></div>
+                        <p class="text-slate-200">بيع وتطبيق الطلاء بسعر 40 ريال / م²، عقود الخدمة السنوية المباشرة B2B، ورسوم ترخيص التكنولوجيا للقطاعات الأخرى مستقبلاً.</p>
+                    </div>
+                </div>
+
+                <!-- Strategic SWOT Analysis Grid -->
+                <div class="glass-panel p-6 rounded-2xl space-y-4">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-border-all text-amber-400"></i>
+                        <span data-i18n="swotTitle">مصفوفة التحليل الاستراتيجي SWOT</span>
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-emerald-500/30 space-y-2">
+                            <div class="font-bold text-emerald-400 text-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-shield-cat"></i> <span data-i18n="swotS">نقاط القوة (Strengths)</span>
+                            </div>
+                            <ul class="space-y-1 text-slate-300 list-disc list-inside">
+                                <li>براءة اختراع مسجلة (SA 10202510014) تحمي المفهوم والتطبيق.</li>
+                                <li>تكلفة مواد خام تقارب الصفر بفضل إعادة تدوير البلاستيك المحلي.</li>
+                                <li>دعم أكاديمي وتقني من جامعة الملك عبد العزيز وفريق متعدد التخصصات.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-amber-500/30 space-y-2">
+                            <div class="font-bold text-amber-400 text-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-triangle-exclamation"></i> <span data-i18n="swotW">نقاط الضعف (Weaknesses)</span>
+                            </div>
+                            <ul class="space-y-1 text-slate-300 list-disc list-inside">
+                                <li>عدم وجود منشأة إنتاج مستقلة حالياً والاعتماد على معامل الجامعة.</li>
+                                <li>تركز الإيرادات المبدئية بشكل رئيسي على موسم الحج.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-blue-500/30 space-y-2">
+                            <div class="font-bold text-blue-400 text-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-chart-line"></i> <span data-i18n="swotO">الفرص (Opportunities)</span>
+                            </div>
+                            <ul class="space-y-1 text-slate-300 list-disc list-inside">
+                                <li>نمو سوق طلاء النانو العالمي ليتجاوز 23.5 مليار دولار بحلول 2030.</li>
+                                <li>التوافق التام مع رؤية السعودية 2030 ومبادرات الاستدامة والحد من التلوث.</li>
+                                <li>التوسع لقطاعات الصحة والنقل العام والتصدير للتجمعات العالمية.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-rose-500/30 space-y-2">
+                            <div class="font-bold text-rose-400 text-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-shield-virus"></i> <span data-i18n="swotT">التهديدات (Threats)</span>
+                            </div>
+                            <ul class="space-y-1 text-slate-300 list-disc list-inside">
+                                <li>احتمال دخول شركات كيميائية كبرى ببدائل تقليدية.</li>
+                                <li>بطء دورة المشتريات الحكومية مقارنة بمتطلبات تسارع الشراكات.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="techTab" class="tab-content hidden space-y-6">
+                <div class="glass-panel p-6 rounded-2xl space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white" data-i18n="techTitle">التقنية ومسار التصنيع الذكي</h2>
+                        <p class="text-xs text-slate-400" data-i18n="techSub">تحويل نفايات البلاستيك إلى نقاط كربون كوانتية ذات خصائص تعقيم هائلة</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 text-center space-y-2 relative">
+                            <div class="w-10 h-10 mx-auto rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">1</div>
+                            <h4 class="font-bold text-white text-sm" data-i18n="step1">جمع النفايات</h4>
+                            <p class="text-slate-400 text-xs" data-i18n="step1Desc">جمع علوات PET والبولي بروبيلين من مخلفات المشاعر المقدسة.</p>
+                        </div>
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 text-center space-y-2 relative">
+                            <div class="w-10 h-10 mx-auto rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold">2</div>
+                            <h4 class="font-bold text-white text-sm" data-i18n="step2">التفريغ والتقطيع</h4>
+                            <p class="text-slate-400 text-xs" data-i18n="step2Desc">غسل وتحويل البلاستيك إلى جزيئات ناعمة جاهزة للمفاعل.</p>
+                        </div>
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-brand-500/50 text-center space-y-2 relative bg-brand-500/5">
+                            <div class="w-10 h-10 mx-auto rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold">3</div>
+                            <h4 class="font-bold text-white text-sm" data-i18n="step3">مفاعل CQD النانوي</h4>
+                            <p class="text-slate-400 text-xs" data-i18n="step3Desc">تفكيك المكونات كيميائياً وتكثيف النقاط الكربونية مع المجموعات الفعالة.</p>
+                        </div>
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-amber-500/50 text-center space-y-2 relative bg-amber-500/5">
+                            <div class="w-10 h-10 mx-auto rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">4</div>
+                            <h4 class="font-bold text-white text-sm" data-i18n="step4">الرش والتطبيق</h4>
+                            <p class="text-slate-400 text-xs" data-i18n="step4Desc">طلاء الخيام والأسطح الملموسة بحماية تدوم لموسم كامل.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid lg:grid-cols-2 gap-6 pt-4">
+                        <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h4 class="font-bold text-white text-sm" data-i18n="trlTitle">جاهزية التكنولوجيا (TRL)</h4>
+                                <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded font-mono">حالياً: TRL 4</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+                                <div class="bg-gradient-to-r from-blue-500 to-emerald-400 h-3 rounded-full" style="width: 45%"></div>
+                            </div>
+                            <p class="text-xs text-slate-400" data-i18n="trlDesc">
+                                تم التحقق من الكفاءة والمفهوم في المختبر بنجاح، ونتجه نحو TRL 6 لإنتاج نموذج عمل تجاري ملموس في البيئة التشغيلية.
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-900/60 p-5 rounded-xl border border-slate-800 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h4 class="font-bold text-white text-sm" data-i18n="mrlTitle">جاهزية التصنيع (MRL)</h4>
+                                <span class="text-xs bg-amber-500/20 text-amber-400 px-2 py-1 rounded font-mono">حالياً: MRL 4</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+                                <div class="bg-gradient-to-r from-amber-500 to-emerald-400 h-3 rounded-full" style="width: 40%"></div>
+                            </div>
+                            <p class="text-xs text-slate-400" data-i18n="mrlDesc">
+                                جرى اختبار وإثبات كفاءة عمليات المفاعل في النطاق المعملي، ويستهدف التمويل استكمال خط الإنتاج التجريبي (MRL 6).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="financialTab" class="tab-content hidden space-y-6">
+                
+                <div class="glass-panel p-6 rounded-2xl border border-brand-500/30 space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white" data-i18n="calcTitle">محاكي الإيرادات والأرباح التفاعلي</h2>
+                            <p class="text-xs text-slate-400" data-i18n="calcSub">حرك المؤشر لتحديد المساحة المطلوبة بالأمتار المربعة وشاهد النتائج الفورية</p>
+                        </div>
+                        <span class="bg-brand-500/10 text-brand-400 text-xs px-3 py-1 rounded-full border border-brand-500/20 font-bold" data-i18n="calcFormula">40 ريال/م² إيراد | 20 ريال/م² تكلفة</span>
+                    </div>
+
+                    <div class="space-y-3 bg-slate-900/80 p-5 rounded-xl border border-slate-800">
+                        <div class="flex justify-between items-center text-sm font-bold">
+                            <span class="text-slate-300" data-i18n="calcAreaLabel">المساحة المغطاة بالطلاء:</span>
+                            <span class="text-brand-400 text-lg font-mono" id="areaValueDisplay">150,000 م²</span>
+                        </div>
+                        <input type="range" id="areaSlider" min="10000" max="500000" step="5000" value="150000" oninput="updateCalculations()" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500">
+                        <div class="flex justify-between text-[11px] text-slate-500">
+                            <span>10,000 م²</span>
+                            <span>250,000 م²</span>
+                            <span>500,000 م²</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+                            <span class="text-xs text-slate-400" data-i18n="calcRev">الإيرادات الإجمالية</span>
+                            <div class="text-xl lg:text-2xl font-black text-emerald-400 font-mono mt-1" id="calcRevVal">6,000,000 SAR</div>
+                        </div>
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+                            <span class="text-xs text-slate-400" data-i18n="calcCost">تكلفة الإنتاج الإجمالية</span>
+                            <div class="text-xl lg:text-2xl font-black text-rose-400 font-mono mt-1" id="calcCostVal">3,000,000 SAR</div>
+                        </div>
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
+                            <span class="text-xs text-slate-400" data-i18n="calcProfit">الربح الصافي (50%)</span>
+                            <div class="text-xl lg:text-2xl font-black text-amber-400 font-mono mt-1" id="calcProfitVal">3,000,000 SAR</div>
+                        </div>
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-blue-500/30">
+                            <span class="text-xs text-slate-400" data-i18n="calcWaste">بلاستيك معاد تدويره</span>
+                            <div class="text-xl lg:text-2xl font-black text-blue-400 font-mono mt-1" id="calcWasteVal">150 طن</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl space-y-6">
+                    <h3 class="text-xl font-bold text-white" data-i18n="chartTitle">التوقعات المالية لخمس سنوات (SAR)</h3>
+                    <div class="h-64 w-full">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="impactTab" class="tab-content hidden space-y-6">
+                <div class="glass-panel p-6 rounded-2xl space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white" data-i18n="impactTitle">الأثر والتوافق مع أهداف التنمية المستدامة (SDGs)</h2>
+                        <p class="text-xs text-slate-400" data-i18n="impactSub">تحقيق التوازن بين الجدوى الاقتصادية والأثر البيئي والمجتمعي</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-red-900/30 border border-red-500/40 p-4 rounded-xl space-y-2">
+                            <div class="flex items-center gap-2 text-red-400 font-bold">
+                                <i class="fa-solid fa-heart-pulse text-xl"></i>
+                                <span>SDG 3</span>
+                            </div>
+                            <h4 class="font-bold text-white text-xs" data-i18n="sdg3Title">الصحة الجيدة والرفاه</h4>
+                            <p class="text-[11px] text-slate-300" data-i18n="sdg3Desc">تقليل انتشار الميكروبات وحماية ملايين الحجاج والزوار سنوياً.</p>
+                        </div>
+                        <div class="bg-amber-900/30 border border-amber-500/40 p-4 rounded-xl space-y-2">
+                            <div class="flex items-center gap-2 text-amber-400 font-bold">
+                                <i class="fa-solid fa-industry text-xl"></i>
+                                <span>SDG 9</span>
+                            </div>
+                            <h4 class="font-bold text-white text-xs" data-i18n="sdg9Title">الصناعة والابتكار</h4>
+                            <p class="text-[11px] text-slate-300" data-i18n="sdg9Desc">تطبيق تكنولوجيا النانو المتقدمة في البنية التحتية والمستدامة.</p>
+                        </div>
+                        <div class="bg-emerald-900/30 border border-emerald-500/40 p-4 rounded-xl space-y-2">
+                            <div class="flex items-center gap-2 text-emerald-400 font-bold">
+                                <i class="fa-solid fa-arrows-spin text-xl"></i>
+                                <span>SDG 12</span>
+                            </div>
+                            <h4 class="font-bold text-white text-xs" data-i18n="sdg12Title">الاستهلاك والإنتاج المسؤول</h4>
+                            <p class="text-[11px] text-slate-300" data-i18n="sdg12Desc">تحويل 500 طن سنوياً من البلاستيك الضار إلى منتج عالي القيمة.</p>
+                        </div>
+                        <div class="bg-teal-900/30 border border-teal-500/40 p-4 rounded-xl space-y-2">
+                            <div class="flex items-center gap-2 text-teal-400 font-bold">
+                                <i class="fa-solid fa-earth-americas text-xl"></i>
+                                <span>SDG 13</span>
+                            </div>
+                            <h4 class="font-bold text-white text-xs" data-i18n="sdg13Title">العمل المناخي</h4>
+                            <p class="text-[11px] text-slate-300" data-i18n="sdg13Desc">خفض الانبعاثات الكربونية الناجمة عن حرق أو دفن البلاستيك.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="teamTab" class="tab-content hidden space-y-6">
+                <div class="glass-panel p-6 rounded-2xl space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white" data-i18n="teamTitle">الفريق التأسيسي والحوكمة</h2>
+                        <p class="text-xs text-slate-400" data-i18n="teamSub">خبرات تكاملية تشمل الكيمياء، الهندسة، التسويق والمبيعات</p>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center space-y-2">
+                            <div class="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-brand-500 to-emerald-300 text-slate-950 font-bold flex items-center justify-center text-xl">
+                                DR
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-sm">د. مها الرادادي</h4>
+                                <span class="text-brand-400 text-xs block" data-i18n="roleCEO">الرئيس التنفيذي والشريك المؤسس</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400" data-i18n="bioCEO">صاحبة براءة الاختراع والإشراف البحثي والتوجيه الاستراتيجي.</p>
+                        </div>
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center space-y-2">
+                            <div class="w-16 h-16 mx-auto rounded-full bg-slate-700 text-white font-bold flex items-center justify-center text-xl">
+                                RH
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-sm">رياض الحربي</h4>
+                                <span class="text-blue-400 text-xs block" data-i18n="roleCOO">مدير العمليات التشغيلية</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400" data-i18n="bioCOO">إدارة سلاسل الإمداد ومفاعل النانو وضبط الجودة المعملية.</p>
+                        </div>
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center space-y-2">
+                            <div class="w-16 h-16 mx-auto rounded-full bg-slate-700 text-white font-bold flex items-center justify-center text-xl">
+                                MO
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-sm">ملاك العبيدان</h4>
+                                <span class="text-purple-400 text-xs block" data-i18n="roleCMO">مديرة التسويق والهوية</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400" data-i18n="bioCMO">بناء الهوية المؤسسية وإدارة العلاقات العامة والتواصل.</p>
+                        </div>
+                        <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 text-center space-y-2">
+                            <div class="w-16 h-16 mx-auto rounded-full bg-slate-700 text-white font-bold flex items-center justify-center text-xl">
+                                FS
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-sm">فؤاد صبحي</h4>
+                                <span class="text-amber-400 text-xs block" data-i18n="roleSales">مدير المبيعات والعقود</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400" data-i18n="bioSales">هيكلة عقود B2B والتفاوض مع القطاعات الحكومية والخاصة.</p>
+                        </div>
+                    </div>
+
+                    <!-- Investment Pitch -->
+                    <div class="bg-gradient-to-r from-slate-900 via-brand-900/20 to-slate-900 p-6 rounded-xl border border-brand-500/40 space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                                <h3 class="text-lg font-bold text-white" data-i18n="invTitle">العرض الاستثماري المطلوب (Seed Round)</h3>
+                                <p class="text-xs text-slate-400" data-i18n="invSub">لتوسيع طاقة مفاعل النانو وتغطية العقود التشغيلية الأولى</p>
+                            </div>
+                            <div class="text-2xl font-black text-amber-400 font-mono">300,000 SAR</div>
+                        </div>
+
+                        <div class="grid md:grid-cols-3 gap-4 text-xs">
+                            <div class="bg-slate-900/90 p-3 rounded border border-slate-800">
+                                <span class="text-slate-400" data-i18n="invEquity">الحصة المعروضة</span>
+                                <div class="text-lg font-bold text-white mt-0.5">15% Equity</div>
+                            </div>
+                            <div class="bg-slate-900/90 p-3 rounded border border-slate-800">
+                                <span class="text-slate-400" data-i18n="invPreVal">التقييم قبل الاستثمار</span>
+                                <div class="text-lg font-bold text-white mt-0.5">1,700,000 SAR</div>
+                            </div>
+                            <div class="bg-slate-900/90 p-3 rounded border border-slate-800">
+                                <span class="text-slate-400" data-i18n="invPostVal">التقييم بعد الاستثمار</span>
+                                <div class="text-lg font-bold text-white mt-0.5">2,000,000 SAR</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Translation dictionary for Arabic and English
+        const i18n = {
+            ar: {
+                tagline: "تحويل النفايات البلاستيكية إلى تقنية نانو للتعقيم الذاتي",
+                navDashboard: "لوحة التحكم والمؤشرات",
+                navOverview: "نظرة عامة والفرصة",
+                navBMC: "نموذج العمل وSWOT",
+                navTech: "التقنية والمنتج (TRL/MRL)",
+                navFinance: "الحاسبة التفاعلية والمالية",
+                navImpact: "الأثر والاستدامة ESG",
+                navTeam: "الفريق والعرض الاستثماري",
+                dashLiveStatus: "نظام المفاعل والقياسات الحية: نشط",
+                dashTitle: "لوحة التحكم والمؤشرات التنفيذية",
+                dashSub: "متابعة الأداء الميداني، كفاءة مفاعل CQD النانوي، والتأثير البيئي المباشر",
+                filterP1: "المرحلة 1: موسم الحج (150k م²)",
+                filterP2: "المرحلة 2: التوسع بالمشاعر (300k م²)",
+                filterP3: "المرحلة 3: المستشفيات والنقل (1M م²)",
+                dashMetric1Title: "المساحة المغطاة الحالية",
+                dashMetric1Sub: "خيام ومرافق منى",
+                dashMetric2Title: "الإيرادات المحققة / المقدرة",
+                dashMetric2Sub: "هامش ربح صَافي 50%",
+                dashMetric3Title: "البلاستيك المحول (PET/PP)",
+                dashMetric3Sub: "تم تحويله لنقاط كوانتية",
+                dashMetric4Title: "كفاءة التعقيم الميكروبي",
+                dashMetric4Sub: "مبني على تجارب معملية",
+                reactorTitle: "حالة مفاعل النانو (CQD)",
+                batchStatus: "دفعة #842 - جاهزة",
+                reactorParam1: "درجة حرارة التفاعل:",
+                reactorParam2: "نقاء النقاط الكوانتية (Purity):",
+                reactorParam3: "المجموعات الفعالة النشطة (-OH / -COOH):",
+                labNoteTitle: "ملاحظة الضبط المعملي (KAU Lab)",
+                labNoteBody: "تم تأكيد استقرار التركيبة النانوية مع مقاومة كاملة للأشعة فوق البنفسجية UV لضمان استدامة الطلاء لموسم الحج كاملاً.",
+                dashChart1Title: "مقارنة التكلفة مقابل الإيراد لكل مرحلة (SAR)",
+                dashChart1Sub: "تحليل الجدوى الاقتصادية",
+                envIcon1: "انبعاثات CO2 المحيدة",
+                envIcon1Sub: "نتيجة منع حرق البلاستيك",
+                envIcon2: "توفير مياه التطهير",
+                envIcon2Sub: "تقليل دورات الغسيل الكيميائي",
+                envIcon3: "المستفيدون المقدرون",
+                envIcon3Sub: "حماية الأسطح عالية التلامس",
+                stageBadge: "مرحلة Prototype / TRL 4",
+                locationBadge: "جدة، المملكة العربية السعودية",
+                patentState: "براءة اختراع مسجلة SA 10202510014",
+                heroTitle: "تحويل النفايات البلاستيكية إلى طلاء نانو ذكي مضاد للميكروبات",
+                heroDesc: "تُقدّم EcoReact حلاً ابتكارياً حافلاً ببراءة اختراع سعودية يقوم بتحويل مخلفات البلاستيك (PET/PP) الناتجة عن مواسم التجمعات الكبرى كالحج، إلى نقاط كربون كوانتية (CQD) لإنتاج طلاء نانو ذاتي التعقيم للمرافق والمواصلات والخيام.",
+                heroCTA1: "استكشف النمذجة المالية والتكلفة",
+                heroCTA2: "تفاصيل الآلية والتقنية",
+                probTitle: "التحدي والمشكلة الرئيسية",
+                prob1: "تراكم أطنان النفايات البلاستيكية أحادية الاستخدام أثناء مواسم الحج والتجمعات المليونية.",
+                prob2: "مخاطر انتشار العدوى الميكروبية على الأسطح الملموسة بكثرة والتكلفة المرتفعة للرش والتطهير الكيميائي المتكرر.",
+                prob3: "ضعف حلول التدوير التقليدية التي تستهلك طاقة عالية ولا تنتج مواد ذات قيمة مضافة عالية.",
+                solTitle: "الحل المبتكر والقيمة المضافة",
+                sol1: "تكنولوجيا نانو ممتدة المفعول تعتمد على مفاعل كيميائي ذكي لتحويل البلاستيك إلى طلاء نانو نشط.",
+                sol2: "تكلفة مواد خام خاماتها تقارب الصفر بفضل الاستفادة المباشرة من بلاستيك PET/PP المحلّي.",
+                sol3: "توفير حماية كاملة تدوم لموسم كامل بطلاء واحد بدلاً من عمليات التطهير الكيميائي المتكررة.",
+                calcTitle: "محاكي الإيرادات والأرباح التفاعلي",
+                calcSub: "حرك المؤشر لتحديد المساحة المطلوبة بالأمتار المربعة وشاهد النتائج الفورية",
+                calcAreaLabel: "المساحة المغطاة بالطلاء:",
+                calcRev: "الإيرادات الإجمالية",
+                calcCost: "تكلفة الإنتاج الإجمالية",
+                calcProfit: "الربح الصافي (50%)",
+                calcWaste: "بلاستيك معاد تدويره",
+                chartTitle: "التوقعات المالية لخمس سنوات (SAR)"
+            },
+            en: {
+                tagline: "Transforming Plastic Waste into Self-Sanitizing Nano Coatings",
+                navDashboard: "Executive Dashboard",
+                navOverview: "Overview & Opportunity",
+                navBMC: "Business Model & SWOT",
+                navTech: "Technology & TRL/MRL",
+                navFinance: "Interactive Calculator & Financials",
+                navImpact: "ESG Impact & SDGs",
+                navTeam: "Team & Investment Pitch",
+                dashLiveStatus: "Reactor & Telemetry Status: ACTIVE",
+                dashTitle: "Executive Performance Dashboard",
+                dashSub: "Real-time field metrics, CQD reactor performance, and environmental impact",
+                filterP1: "Phase 1: Hajj Season (150k m²)",
+                filterP2: "Phase 2: Holy Sites Expansion (300k m²)",
+                filterP3: "Phase 3: Hospitals & Transit (1M m²)",
+                dashMetric1Title: "Current Covered Surface",
+                dashMetric1Sub: "Mina Tents & Holy Facilities",
+                dashMetric2Title: "Projected Gross Revenue",
+                dashMetric2Sub: "50% Net Margin",
+                dashMetric3Title: "Diverted Plastics (PET/PP)",
+                dashMetric3Sub: "Synthesized to CQD Dots",
+                dashMetric4Title: "Antimicrobial Efficacy",
+                dashMetric4Sub: "Lab Validation Confirmed",
+                reactorTitle: "Nano Reactor System Status",
+                batchStatus: "Batch #842 - READY",
+                reactorParam1: "Reaction Temperature:",
+                reactorParam2: "Carbon Dots Purity:",
+                reactorParam3: "Active Functional Groups:",
+                labNoteTitle: "Lab Control Note (KAU)",
+                labNoteBody: "Nanostructure stability and high UV resistance confirmed for continuous full-season deployment.",
+                dashChart1Title: "Revenue vs Production Cost per Phase (SAR)",
+                dashChart1Sub: "Financial Feasibility Analysis",
+                envIcon1: "CO2 Offset",
+                envIcon1Sub: "Prevented plastic burning",
+                envIcon2: "Sanitization Water Saved",
+                envIcon2Sub: "Reduced chemical wash cycles",
+                envIcon3: "Estimated Beneficiaries",
+                envIcon3Sub: "High-touch surface protection",
+                stageBadge: "Prototype Stage / TRL 4",
+                locationBadge: "Jeddah, Saudi Arabia",
+                patentState: "Patent Registered SA 10202510014",
+                heroTitle: "Transforming Plastic Waste into Active Antimicrobial Nano-Coatings",
+                heroDesc: "EcoReact delivers a patented Saudi innovation transforming plastic waste (PET/PP) from mega-gatherings like Hajj into Carbon Quantum Dots (CQD) for self-sanitizing antimicrobial coatings applied to tents and transit infrastructure.",
+                heroCTA1: "Explore Financial Modeling",
+                heroCTA2: "Technology & Process Details",
+                probTitle: "Key Problem & Challenge",
+                prob1: "Massive plastic waste accumulation during seasonal gatherings like Hajj.",
+                prob2: "High risk of pathogen transmission on high-touch surfaces and expensive recurring chemical spraying.",
+                prob3: "Traditional recycling is energy-intensive and fails to yield high-value functional materials.",
+                solTitle: "Innovative Solution & Value",
+                sol1: "Long-lasting nano-technology using a proprietary microreactor converting plastic into active coatings.",
+                sol2: "Near-zero raw material cost driven by direct local waste recycling.",
+                sol3: "Full seasonal surface protection with a single application replacing repeated disinfection.",
+                calcTitle: "Interactive Revenue & Profit Simulator",
+                calcSub: "Adjust the area slider to dynamically simulate financial outcomes",
+                calcAreaLabel: "Surface Area Treated:",
+                calcRev: "Total Gross Revenue",
+                calcCost: "Total Production Cost",
+                calcProfit: "Net Profit (50% Margin)",
+                calcWaste: "Plastic Waste Diverted",
+                chartTitle: "5-Year Financial Forecast (SAR)"
+            }
+        };
+
+        let currentLang = 'ar';
+
+        // Tab Switcher Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+                tab.classList.remove('block');
+            });
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-brand-600/20', 'text-brand-400', 'border', 'border-brand-500/30');
+                btn.classList.add('text-slate-400');
+            });
+
+            const activeTab = document.getElementById(tabId);
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+                activeTab.classList.add('block');
+            }
+
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-brand-600/20', 'text-brand-400', 'border', 'border-brand-500/30');
+                activeBtn.classList.remove('text-slate-400');
+            }
+        }
+
+        // Language Switcher Logic
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+            document.getElementById('langText').innerText = currentLang === 'ar' ? 'English' : 'عربي';
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[currentLang][key]) {
+                    el.innerText = i18n[currentLang][key];
+                }
+            });
+
+            updateCalculations();
+        }
+
+        // Financial Simulator Updates
+        function updateCalculations() {
+            const area = parseInt(document.getElementById('areaSlider').value);
+            document.getElementById('areaValueDisplay').innerText = area.toLocaleString() + ' m²';
+
+            const revenue = area * 40;
+            const cost = area * 20;
+            const profit = revenue - cost;
+            const wasteTons = Math.round(area * 0.001);
+
+            document.getElementById('calcRevVal').innerText = revenue.toLocaleString() + ' SAR';
+            document.getElementById('calcCostVal').innerText = cost.toLocaleString() + ' SAR';
+            document.getElementById('calcProfitVal').innerText = profit.toLocaleString() + ' SAR';
+            document.getElementById('calcWasteVal').innerText = wasteTons.toLocaleString() + ' Tons';
+        }
+
+        // Dashboard Interactive Filter
+        function filterDashboardData() {
+            const selected = document.getElementById('seasonFilter').value;
+            let area = 150000;
+            if (selected === 'phase2') area = 300000;
+            if (selected === 'phase3') area = 1000000;
+
+            const revenue = area * 40;
+            const waste = Math.round(area * 0.001);
+            const co2 = Math.round(waste * 2.4);
+
+            document.getElementById('dashMetricArea').innerHTML = area.toLocaleString() + ' <span class="text-xs font-normal text-slate-400">m²</span>';
+            document.getElementById('dashMetricRev').innerHTML = revenue.toLocaleString() + ' <span class="text-xs font-normal text-slate-400">SAR</span>';
+            document.getElementById('dashMetricWaste').innerHTML = waste.toLocaleString() + ' <span class="text-xs font-normal text-slate-400">Tons</span>';
+            document.getElementById('dashCo2Val').innerText = co2.toLocaleString() + ' Tons CO2';
+
+            if (dashChartInstance) {
+                dashChartInstance.data.datasets[0].data = [revenue * 0.1, revenue, revenue * 2.5];
+                dashChartInstance.data.datasets[1].data = [revenue * 0.05, revenue * 0.5, revenue * 1.25];
+                dashChartInstance.update();
+            }
+        }
+
+        // Chart Initialization
+        let dashChartInstance = null;
+        let revenueChartInstance = null;
+
+        function initCharts() {
+            // Dashboard Comparison Chart
+            const ctxDash = document.getElementById('dashComparisonChart').getContext('2d');
+            dashChartInstance = new Chart(ctxDash, {
+                type: 'bar',
+                data: {
+                    labels: ['Phase 1 (150k m²)', 'Phase 2 (300k m²)', 'Phase 3 (1M m²)'],
+                    datasets: [
+                        {
+                            label: 'Gross Revenue (SAR)',
+                            data: [6000000, 12000000, 40000000],
+                            backgroundColor: '#22c55e',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Production Cost (SAR)',
+                            data: [3000000, 6000000, 20000000],
+                            backgroundColor: '#ef4444',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { family: 'Cairo' } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            // Financial Forecast Chart
+            const ctxRev = document.getElementById('revenueChart').getContext('2d');
+            revenueChartInstance = new Chart(ctxRev, {
+                type: 'bar',
+                data: {
+                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                    datasets: [
+                        {
+                            label: 'Total Revenue (SAR)',
+                            data: [400000, 1430000, 4200000, 9300000, 18000000],
+                            backgroundColor: '#22c55e',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Gross Profit (SAR)',
+                            data: [200000, 786500, 2520000, 6045000, 12600000],
+                            backgroundColor: '#f59e0b',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { family: 'Cairo' } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        window.onload = function() {
+            initCharts();
+            updateCalculations();
+        };
+    </script>
+</body>
+</html>
